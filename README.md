@@ -111,5 +111,5 @@ submission.to_csv('submission_prediction.csv', index=False)
 
 ## Submission
 
-The final predictions are saved in `submission.csv`, which can be submitted to the competition or used for further analysis.
+The final predictions are saved in `submission.csv`, which can be used for further analysis.
 ```
