@@ -1,4 +1,4 @@
-```markdown
+
 # Rainfall Prediction Project
 
 This project aims to predict rainfall based on meteorological data. It includes data exploration, preprocessing, feature engineering, model training, and evaluation.
