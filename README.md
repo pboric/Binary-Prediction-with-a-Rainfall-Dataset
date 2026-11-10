@@ -1,114 +1,45 @@
+# Rainfall Prediction
 
-# Rainfall Prediction Project
+Predicting whether it will rain on a given day from daily weather measurements (pressure, temperature, dew point,
+humidity, cloud cover, sunshine, wind), for the Kaggle Playground competition
+[Binary Prediction with a Rainfall Dataset](https://www.kaggle.com/competitions/playground-series-s5e3).
 
-This project aims to predict rainfall based on meteorological data. It includes data exploration, preprocessing, feature engineering, model training, and evaluation.
+## Results
 
-## Project Structure
+ROC AUC on a stratified validation split (438 of 2,190 days):
 
-```
-Rainfall Prediction/
-├── data/
-│   ├── train.csv         # Original training data
-│   ├── test.csv          # Original test data
-│   ├── train_processed.csv # Processed training data
-│   └── test_processed.csv  # Processed test data
-├── Rainfall_Prediction_EDA.ipynb         # Exploratory Data Analysis notebook
-├── Rainfall_Prediction_Preprocessing.ipynb # Data Preprocessing and Feature Engineering notebook
-├── Rainfall_Prediction_Modeling.ipynb    # Model Training and Evaluation notebook
-├── best_model.pkl        # Serialized best trained model
-└── submission.csv        # Submission file with predictions
-```
+| Model | Validation ROC AUC |
+|---|---:|
+| **Logistic regression** | **0.879** |
+| XGBoost | 0.874 |
+| Random Forest | 0.873 |
+| LightGBM | 0.872 |
 
-## Dependencies
+All models were tuned with grid search and stratified cross-validation. The simple logistic regression did as well
+as the tree ensembles, so it was retrained on all training data and used for the submission.
 
--   `numpy`
--   `pandas`
--   `matplotlib`
--   `seaborn`
--   `scikit-learn`
--   `xgboost`
--   `lightgbm`
--   `joblib`
+## Notebooks
 
-You can install the required libraries using pip:
+| Notebook | Content |
+|---|---|
+| [`EDA.ipynb`](EDA.ipynb) | Target balance (75 % rainy days), feature distributions and relationships, correlations, train vs. test distributions, outliers (Isolation Forest) |
+| [`Preprocessing.ipynb`](Preprocessing.ipynb) | Missing values, outlier capping, cyclical encoding of day and wind direction, transformations of skewed features, interaction features, multicollinearity, scaling |
+| [`Modeling.ipynb`](Modeling.ipynb) | Logistic regression, Random Forest, XGBoost and LightGBM with grid search, feature importance, final model and submission |
 
-```bash
-pip install numpy pandas matplotlib seaborn scikit-learn xgboost lightgbm joblib
-```
+`best_model.pkl` is the final model and `submission.csv` its predictions for the competition test set.
 
-## Project Workflow
+## Run it
 
-1.  **Exploratory Data Analysis (EDA):**
-    -      The `Rainfall_Prediction_EDA.ipynb` notebook performs an in-depth analysis of the dataset, including:
-        -      Basic information and missing value checks.
-        -      Target variable distribution analysis.
-        -      Feature distribution analysis.
-        -      Feature relationships with the target variable.
-        -      Correlation analysis.
-        -      Comparison of train and test data distributions.
-        -      Feature range analysis.
-        -      Outlier detection and analysis using Isolation Forest and Local Outlier Factor (LOF).
-    -      This step helps understand the data's characteristics and identify potential issues.
+1. Download `train.csv` and `test.csv` from the competition page into a `data/` folder.
+2. `pip install -r requirements.txt`
+3. Run the notebooks in order. The preprocessing notebook writes `data/train_processed.csv` and
+   `data/test_processed.csv`, which the modelling notebook reads.
 
-2.  **Data Preprocessing and Feature Engineering:**
-    -      The `Rainfall_Prediction_Preprocessing.ipynb` notebook handles data cleaning and feature engineering, including:
-        -      Handling missing values.
-        -      Removing unnecessary features (e.g., 'id').
-        -      Outlier detection and handling (capping).
-        -      Encoding cyclical features ('day', 'winddirection').
-        -      Transforming skewed distributions.
-        -      Creating interaction features.
-        -      Handling multicollinearity.
-        -      Handling bimodal distributions.
-        -      Feature scaling.
-    -      The processed data is saved as `train_processed.csv` and `test_processed.csv` in the `data/` directory.
+## Limitations
 
-3.  **Model Training and Evaluation:**
-    -      The `Rainfall_Prediction_Modeling.ipynb` notebook trains and evaluates several machine learning models, including:
-        -      Logistic Regression.
-        -      Random Forest.
-        -      XGBoost.
-        -      LightGBM.
-    -      It uses GridSearchCV with StratifiedKFold cross-validation to find the best hyperparameters for each model.
-    -      Model performance is evaluated using ROC AUC.
-    -   Feature importance is analyzed.
-    -      The best performing model is selected, retrained on the full training dataset, and saved as `best_model.pkl`.
-    -      Predictions are made on the test set, and a submission file (`submission.csv`) is generated.
+The dataset is small (2,190 days) and synthetic, generated by Kaggle from a real weather dataset, so the differences
+between the models are within the noise of a single validation split.
 
-## Running the Notebooks
+## License
 
-1.  Clone the repository.
-2.  Install the required dependencies using pip.
-3.  Place the original `train.csv` and `test.csv` files in the `data/` directory.
-4.  Run the notebooks in the following order:
-    -   `Rainfall_Prediction_EDA.ipynb`
-    -   `Rainfall_Prediction_Preprocessing.ipynb`
-    -   `Rainfall_Prediction_Modeling.ipynb`
-
-## Saved Model
-
-The best trained model is saved as `best_model.pkl` using `joblib`. You can load and use it for predictions as follows:
-
-```python
-import joblib
-import pandas as pd
-
-# Load the saved model
-model = joblib.load('best_model.pkl')
-
-# Load test data
-test = pd.read_csv('data/test_processed.csv')
-original_test = pd.read_csv('data/test.csv')
-test_ids = original_test['id']
-
-# Make predictions
-predictions = model.predict_proba(test)[:, 1]
-
-# Create submission file
-submission = pd.DataFrame({'id': test_ids, 'rainfall': predictions})
-submission.to_csv('submission_prediction.csv', index=False)
-```
-
-## Submission
-
-The final predictions are saved in `submission.csv`, which can be used for further analysis.
+MIT
